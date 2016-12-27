@@ -1,5 +1,6 @@
 const INTEGER = "INTEGER";
 const PLUS = "PLUS";
+const MINUS = "MINUS";
 const EOF = "EOF";
 
 class Token {
@@ -18,6 +19,7 @@ class Token {
 class Interpreter {
 	public pos: number = 0;
 	public currentToken: Token = null;
+	public currentChar = this.text[this.pos];
 
 	constructor(
 		public text: string
@@ -27,29 +29,59 @@ class Interpreter {
 		throw Error(`Error parsing input`);
 	}
 
-	getNextToken() {
+	advance() {
+		this.pos += 1;
+
 		if (this.pos > this.text.length - 1) {
-			return new Token(EOF, null)
+			this.currentChar = null; // end of input
+		} else {
+			this.currentChar = this.text[this.pos];
 		}
 
-		const currentChar = this.text.charAt(this.pos)
-		
-		const num: number = Number.parseInt(currentChar);
-		const isNum: boolean = !Number.isNaN(num);
+	}
 
-		if (isNum) {
-			const token = new Token(INTEGER, Number(currentChar));
-			this.pos += 1;
-			return token;
+	skipWhitespace() {
+		while (this.currentChar !== null && this.currentChar === ' ') {
+			this.advance();
+		}
+	}
+
+	integer() {
+		// parses a multidigit integer
+		let result = '';
+
+		while (this.currentChar !== null && !isNaN(Number(this.currentChar))) {
+			result += this.currentChar;
+			this.advance()
+		}
+		return Number(result);
+	}
+
+	getNextToken() {
+		while (this.currentChar !== null) {
+			if (this.currentChar === ' ') {
+				this.skipWhitespace();
+				continue;
+			}
+
+			if (!isNaN(Number(this.currentChar))) {
+				return new Token(INTEGER, this.integer());
+			}
+
+			if (this.currentChar === '+') {
+				this.advance();
+				return new Token(PLUS, '+');
+			}
+			
+			if (this.currentChar === '-') {
+				this.advance();
+				return new Token(MINUS, '-');
+			}
+
+			this.error()
 		}
 
-		if (currentChar === '+') {
-			const token = new Token(PLUS, currentChar);
-			this.pos += 1;
-			return token;
-		}
-
-		this.error();
+		return new Token(EOF, null);
 	}
 
 	eat(tokenType: string) {
@@ -65,15 +97,18 @@ class Interpreter {
 		const left = this.currentToken;
 		this.eat(INTEGER);
 
-		// current token should be a "+"
+		// current token should be a "+" or a "-"
 		const op = this.currentToken;
-		this.eat(PLUS);
+		if (op.type === PLUS) this.eat(PLUS);
+		else this.eat(MINUS);
 
 		// current token should be a single-digit integer
 		const right = this.currentToken;
 		this.eat(INTEGER);
  
-		return left.value + right.value;
+		return op.type === PLUS
+			? left.value + right.value
+			: left.value - right.value
 	}
 
 }
