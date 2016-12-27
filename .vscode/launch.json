@@ -10,8 +10,11 @@
 			"name": "Launch Program",
 			"program": "${workspaceRoot}/index.js",
 			"cwd": "${workspaceRoot}/dist",
-			"outDir":	"${workspaceRoot}/dist",
-			"sourceMaps": true
+			"outFiles": [
+				"${workspaceRoot}/dist/**.js"
+			],
+			"sourceMaps": true,
+			"console": "integratedTerminal"
 		}
 		
 	]
