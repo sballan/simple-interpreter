@@ -80,32 +80,25 @@ class Interpreter {
 
 function main() {
 
-	const interpreter = new Interpreter('1+5');
-	const result = interpreter.expr()
-	console.log(result);
-
-
-	// prompt('calc> ', (userInput) => {
-	// 	console.log("User input: ", userInput);
-
-	// 	const interpreter = new Interpreter(userInput);
-	// 	const result = interpreter.expr()
-	// 	console.log(result);
-	// 	process.exit()
-	// })
+	prompt('calc> ', (userInput) => {
+		const interpreter = new Interpreter(userInput);
+		const result = interpreter.expr()
+		console.log(result);
+		process.exit()
+	})
 	
 }
 
-// function prompt(text, cb) {
-// 	let stdin = process.stdin;
-// 	let stdout = process.stdout;
+function prompt(text, cb) {
+	let stdin = process.stdin;
+	let stdout = process.stdout;
 
-// 	stdin.resume();
-// 	stdout.write(text);
+	stdin.resume();
+	stdout.write(text);
 
-// 	stdin.once('data', (data) => {
-// 		cb(data.toString().trim());
-// 	})
-// }
+	stdin.once('data', (data) => {
+		cb(data.toString().trim());
+	})
+}
 
 main()
